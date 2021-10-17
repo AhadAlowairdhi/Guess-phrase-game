@@ -15,16 +15,26 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var title : TextView
+    lateinit var highSc : TextView
     private lateinit var RVguess: RecyclerView
     lateinit var edPhrase: EditText
     lateinit var Check: Button
     lateinit var Guesses: ArrayList<String>
     private var numOfguess = 10
-    private var secretPhrase = "Simplicity is half the beauty"
+    private var score = 0
+    private var highscore = 0
+    private var secretPhrase = "the life"
     private var phrase = charArrayOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        sharedPreferences = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        highscore = sharedPreferences.getInt("HighScore", 0)// --> retrieves data from Shared Preferences
+
+        highSc=findViewById(R.id.tvScore)
+        var placeScore = "Highscore: $highscore"
+        highSc.text = placeScore
 
         title = findViewById(R.id.tv1)
         edPhrase = findViewById(R.id.edt)
@@ -101,6 +111,15 @@ class MainActivity : AppCompatActivity() {
         RVguess.adapter?.notifyDataSetChanged()
         RVguess.scrollToPosition(Guesses.size-1)
         edPhrase.hint = "Enter A Full Phrase"
+    }
+    private fun save() {
+        if(score < highscore){
+            with(sharedPreferences.edit()) {
+                putInt("HighScore", score)
+                apply()
+            }
+            Snackbar.make(clMain,"Made New Highscore",Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun disableInputs() {
