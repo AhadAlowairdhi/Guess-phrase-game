@@ -21,35 +21,48 @@ class MainActivity : AppCompatActivity() {
     lateinit var Check: Button
     lateinit var Guesses: ArrayList<String>
     private var numOfguess = 10
+
+    private var secretPhrase = "the life"
+    private var phrase = CharArray(secretPhrase.length)
+
+    private lateinit var sharedPreferences: SharedPreferences
+
     private var score = 0
     private var highscore = 0
-    private var secretPhrase = "the life"
-    private var phrase = charArrayOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
-        sharedPreferences = this.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+
+        sharedPreferences = this.getSharedPreferences(getString(R.string.preference_score), Context.MODE_PRIVATE)
         highscore = sharedPreferences.getInt("HighScore", 0)// --> retrieves data from Shared Preferences
 
         highSc=findViewById(R.id.tvScore)
         var placeScore = "Highscore: $highscore"
         highSc.text = placeScore
 
+
         title = findViewById(R.id.tv1)
         edPhrase = findViewById(R.id.edt)
         Check = findViewById(R.id.btn)
 
-
-        Guesses = arrayListOf()
+        Guesses = ArrayList()
         RVguess = findViewById(R.id.rvMain)
         RVguess.adapter = guessAdapter(Guesses)
         RVguess.layoutManager = LinearLayoutManager(this)
 
-        phrase = "*".repeat(secretPhrase.length).toCharArray()
 
+        for (i in secretPhrase.indices) {
+            if (secretPhrase[i] == ' ') {
+                phrase[i] = ' '
+            } else {
+                phrase[i] = '*'
+            }
+        }
 
-        val thePhrase = "The secret phrase is: ${String(phrase)}"
+        // phrase = "*".repeat(secretPhrase.length).toCharArray()
+
+        var thePhrase = "The secret phrase is: ${String(phrase)}"
         title.text = thePhrase
 
         Check.setOnClickListener {
@@ -67,7 +80,8 @@ class MainActivity : AppCompatActivity() {
 
     fun checkPhrase() {
         if (edPhrase.text.length != 1) {
-            if (edt.text.toString().equals(secretPhrase)) {
+            if (edt.text.toString() == secretPhrase ) {
+                newScore()
                 disableInputs()
                 alertbox("Won")
             } else {
@@ -100,10 +114,11 @@ class MainActivity : AppCompatActivity() {
             }
             val thePhrase = "Secret Phrase is: ${String(phrase)}\n Guessed Letter: $userLetter"
             title.text = thePhrase
-            if(secretPhrase == String(phrase))
-                alertbox("Won")
+          //if(secretPhrase == String(phrase))
+              //alertbox("You Won")
+
         } else {
-            Guesses.add("wrong guess, No $userLetter")
+            Guesses.add("Wrong guess, No $userLetter")
             Guesses.add("Number of guess ${--numOfguess}")
         }
         edPhrase.text.clear()
@@ -112,16 +127,17 @@ class MainActivity : AppCompatActivity() {
         RVguess.scrollToPosition(Guesses.size-1)
         edPhrase.hint = "Enter A Full Phrase"
     }
-    private fun save() {
-        if(score < highscore){
+    private fun newScore() {
+        score = 0 + numOfguess
+        if(score >= highscore){
+            highscore = score
             with(sharedPreferences.edit()) {
-                putInt("HighScore", score)
+                putInt("HighScore", highscore)
                 apply()
             }
             Snackbar.make(clMain,"Made New Highscore",Snackbar.LENGTH_SHORT).show()
         }
     }
-
     private fun disableInputs() {
         Check.isEnabled = false
         Check.isClickable = false
