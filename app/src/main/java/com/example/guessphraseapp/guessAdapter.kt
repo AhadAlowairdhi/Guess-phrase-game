@@ -1,5 +1,6 @@
 package com.example.guessphraseapp
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,15 @@ class guessAdapter(private val Guesses: ArrayList<String>) : RecyclerView.Adapte
         val Guess = Guesses[position]
         holder.itemView.apply {
             tv2.text=Guess
+                    if(Guess.startsWith("Found")){
+                        tv2.setTextColor(Color.GREEN)
+                    }
+                    else if(Guess.startsWith("Wrong")){
+                        tv2.setTextColor(Color.RED)
+                    }
+                    else{
+                        tv2.setTextColor(Color.BLACK)
+                    }
         }
     }
 
